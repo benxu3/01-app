@@ -8,13 +8,14 @@ import { openLinkInBrowser } from "../utils/openLinkInBrowser"
 import { observer } from "mobx-react-lite"
 import { Icon } from "../components/Icon"
 import Svg, { Circle } from "react-native-svg"
-import { useChat } from "@livekit/components-react"
+import { useChat, useRoomContext } from "@livekit/components-react"
 
 export const SettingsScreen: FC<ScreenStackScreenProps<"Settings">> = observer(
   function SettingsScreen(_props) {
     const { settingStore, connectionStore } = useStores()
     const { send: sendChat } = useChat()
     const { navigation } = _props
+    const Room = useRoomContext()
 
     const handlePushToTalkToggle = (newValue: boolean) => {
       settingStore.setProp("pushToTalk", newValue)
@@ -58,6 +59,7 @@ export const SettingsScreen: FC<ScreenStackScreenProps<"Settings">> = observer(
     function handleDisconnect() {
       connectionStore.disconnect()
       settingStore.reset()
+      Room?.disconnect()
       navigation.navigate("Login")
     }
 

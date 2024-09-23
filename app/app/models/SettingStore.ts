@@ -34,15 +34,15 @@ export const SettingStoreModel = types
   .actions((self) => ({
     autorunOn(sendChat: (message: string) => void) {
       if (self.autorun) {
-        sendChat("{AUTORUN_ON}")
-        console.log("AUTORUN ON")
+        sendChat("{AUTO_RUN_ON}")
+        console.log("AUTO_RUN ON")
       }
     },
 
     autorunOff(sendChat: (message: string) => void) {
       if (!self.autorun) {
-        sendChat("{AUTORUN_OFF}")
-        console.log("AUTORUN OFF")
+        sendChat("{AUTO_RUN_OFF}")
+        console.log("AUTO_RUN OFF")
       }
     },
   }))

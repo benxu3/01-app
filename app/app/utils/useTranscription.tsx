@@ -8,6 +8,8 @@ const isSpecialMessage = (message: string): boolean => {
     "{CONTEXT_MODE_OFF}",
     "{REQUIRE_START_ON}",
     "{REQUIRE_START_OFF}",
+    "{AUTO_RUN_ON}",
+    "{AUTO_RUN_OFF}",
   ]
   return specialMessages.includes(message.trim())
 }
