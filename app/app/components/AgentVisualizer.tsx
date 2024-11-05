@@ -3,7 +3,7 @@ import { ViewStyle, View } from "react-native"
 import { useTheme } from "../utils/useTheme"
 import { Theme } from "../theme/Theme"
 
-export const AudioVisualizer = () => {
+export const AgentVisualizer = () => {
   const { theme } = useTheme()
 
   return (
@@ -18,6 +18,7 @@ const $visualizerContainer: ViewStyle = {
   width: 100,
   justifyContent: "center",
   alignItems: "center",
+  position: "relative",
 }
 
 const $agentIcon = (theme: Theme): ViewStyle => ({
@@ -27,6 +28,6 @@ const $agentIcon = (theme: Theme): ViewStyle => ({
   alignItems: "center",
   justifyContent: "center",
   backgroundColor: theme.accent,
-  zIndex: 3,
+  zIndex: 1,
   position: "absolute",
 })

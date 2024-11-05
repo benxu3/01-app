@@ -1,4 +1,13 @@
+// const path = require("path")
 const { getSentryExpoConfig } = require("@sentry/react-native/metro")
+
+/** 
+const { generate } = require("@storybook/react-native/scripts/generate")
+
+generate({
+  configPath: path.resolve(__dirname, "./.storybook"),
+})
+*/
 
 /** @type {import('expo/metro-config').MetroConfig} */
 const config = getSentryExpoConfig(__dirname)
@@ -13,6 +22,26 @@ config.transformer.getTransformOptions = async () => ({
     inlineRequires: true,
   },
 })
+
+/** 
+config.transformer.unstable_allowRequireContext = true
+
+/**
+module.exports = withStorybook(config, {
+  // Set to false to remove storybook specific options
+  // you can also use a env variable to set this
+  enabled: true,
+  // Path to your storybook config
+  configPath: path.resolve(__dirname, "./.storybook"),
+
+  // Optional websockets configuration
+  // Starts a websocket server on the specified port and host on metro start
+  // websockets: {
+  //   port: 7007,
+  //   host: 'localhost',
+  // },
+})
+*/
 
 // This helps support certain popular third-party libraries
 // such as Firebase that use the extension cjs.

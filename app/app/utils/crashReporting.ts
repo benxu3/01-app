@@ -20,12 +20,14 @@ export const initCrashReporting = () => {
       // Here, we'll capture profiles for 100% of transactions.
       profilesSampleRate: 1.0,
     },
+    /** 
     integrations: [
       Sentry.mobileReplayIntegration({
         maskAllImages: true,
         maskAllVectors: true,
       }),
     ],
+    */
     debug: false, // If `true`, Sentry will try to print out useful debugging information if something goes wrong with sending the event. Set it to `false` in production
   })
 }

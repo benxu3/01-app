@@ -29,17 +29,28 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
     [connectionStore],
   )
 
-  const handleLocalConnect = useCallback(async () => {
-    await connectionStore.set_token()
+  const handleTokenChange = useCallback(
+    (input: string) => {
+      connectionStore.setProp("token", input)
+    },
+    [connectionStore],
+  )
 
+  const handleLocalConnect = useCallback(async () => {
+    // await connectionStore.set_token()
+    /** 
     if (connectionStore.error) {
       Alert.alert("Error connecting to your server, please try again")
       connectionStore.clearError()
       navigation.navigate("Login")
       return
     }
-
-    navigation.navigate("Room")
+    */
+    if (connectionStore.token !== "" && connectionStore.livekitUrl !== "") {
+      navigation.navigate("Room")
+    } else {
+      Alert.alert("ERROR: EITHER TOKEN OR URL IS EMPTY")
+    }
   }, [navigation])
 
   const handleScan = useCallback(async () => {
@@ -54,7 +65,13 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
             onChangeText={handleTextChange}
             style={$devInput}
             // value={connectionStore.livekitUrl}
+            value={"wss://oi-3vgs3xsr.livekit.cloud"}
             placeholder="Your LiveKit URL"
+          />
+          <TextField
+            onChangeText={handleTokenChange}
+            style={$devInput}
+            placeholder="Your LiveKit Token"
           />
           <Button
             testID="loginButton"

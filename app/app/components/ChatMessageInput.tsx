@@ -1,9 +1,8 @@
 import React, { useState, useCallback } from "react"
-import { View, TouchableOpacity, ViewStyle, TextStyle, Dimensions, Alert } from "react-native"
+import { View, TouchableOpacity, ViewStyle, TextStyle, Dimensions } from "react-native"
 import { TextField } from "./TextField"
-import AntDesign from "@expo/vector-icons/AntDesign"
+
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6"
-import { spacing } from "../theme"
 import { useStores } from "../models"
 
 type ChatMessageInputProps = {
@@ -29,50 +28,31 @@ export const ChatMessageInput = ({ placeholder, onSend, isDarkMode }: ChatMessag
     setMessage("")
   }, [onSend, message])
 
-  const showCamera = () => {
-    Alert.alert("Vision Support", "coming soon!", [{ text: "OK" }])
-  }
-
   const backgroundColor = isDarkMode ? "black" : "white"
   const textColor = isDarkMode ? "white" : "black"
 
   return (
-    <View>
-      <View style={$inputContainer}>
-        {isDarkMode ? (
-          <TouchableOpacity style={$plusButton} onPress={showCamera}>
-            <View style={$plusIconContainer(isDarkMode)}>
-              <AntDesign name="plus" size={20} color={"white"} />
-            </View>
-          </TouchableOpacity>
-        ) : (
-          <TouchableOpacity style={$plusButton} onPress={showCamera}>
-            <View style={$plusIconContainer(isDarkMode)}>
-              <AntDesign name="plus" size={20} color={"white"} />
-            </View>
-          </TouchableOpacity>
-        )}
-        <TextField
-          value={message}
-          onChangeText={setMessage}
-          placeholder={placeholder}
-          style={[$input, { color: textColor }]}
-          containerStyle={$textFieldContainer}
-          inputWrapperStyle={[$inputWrapper(isDarkMode), { backgroundColor }]}
-          onSubmitEditing={handleSend}
-          RightAccessory={() =>
-            message.length > 0 && (
-              <TouchableOpacity style={$sendButton} onPress={handleSend} disabled={!onSend}>
-                <FontAwesome6
-                  name="circle-arrow-up"
-                  size={32}
-                  color={isDarkMode ? "white" : "black"}
-                />
-              </TouchableOpacity>
-            )
-          }
-        />
-      </View>
+    <View style={$inputContainer}>
+      <TextField
+        value={message}
+        onChangeText={setMessage}
+        placeholder={placeholder}
+        style={[$input, { color: textColor }]}
+        containerStyle={$textFieldContainer}
+        inputWrapperStyle={[$inputWrapper(isDarkMode), { backgroundColor }]}
+        onSubmitEditing={handleSend}
+        RightAccessory={() =>
+          message.length > 0 && (
+            <TouchableOpacity style={$sendButton} onPress={handleSend} disabled={!onSend}>
+              <FontAwesome6
+                name="circle-arrow-up"
+                size={32}
+                color={isDarkMode ? "white" : "black"}
+              />
+            </TouchableOpacity>
+          )
+        }
+      />
     </View>
   )
 }
@@ -82,12 +62,11 @@ const $inputContainer: ViewStyle = {
   alignItems: "center",
   paddingTop: 8,
   paddingBottom: 4,
-  width: "100%",
+  width: "75%",
 }
 
 const $textFieldContainer: ViewStyle = {
   flex: 1,
-  width: SCREEN_WIDTH - 32,
 }
 
 const $inputWrapper = (isDarkMode: boolean): ViewStyle => ({
@@ -102,21 +81,6 @@ const $input: TextStyle = {
   marginLeft: 5,
   height: 24 * 0.95, // TextField component height is 24
 }
-
-const $plusButton: ViewStyle = {
-  padding: 4,
-  paddingRight: spacing.md,
-  alignSelf: "center",
-}
-
-const $plusIconContainer = (isDarkMode: boolean): ViewStyle => ({
-  width: 34,
-  height: 34,
-  borderRadius: 17,
-  backgroundColor: isDarkMode ? "rgba(255, 255, 255, 0.5)" : "rgba(0, 0, 0, 0.5)",
-  justifyContent: "center",
-  alignItems: "center",
-})
 
 const $sendButton: ViewStyle = {
   paddingRight: 4,

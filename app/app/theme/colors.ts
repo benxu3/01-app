@@ -35,9 +35,10 @@ const palette = {
 
   overlay20: "rgba(25, 16, 21, 0.2)",
   overlay50: "rgba(25, 16, 21, 0.5)",
+
+  lightGrey: "#43474e",
+  darkGrey: "#282a2f",
 } as const
-
-
 
 export const themes = {
   light: {

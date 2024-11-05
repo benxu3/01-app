@@ -37,7 +37,9 @@ import { registerGlobals } from "@livekit/react-native"
 import "./utils/cryptoPolyfill"
 import { initCrashReporting } from "./utils/crashReporting"
 import * as Sentry from "@sentry/react-native"
+// import { setupCallService } from "./services/callservice/CallService"
 
+// setupCallService()
 initCrashReporting()
 registerGlobals()
 
@@ -56,7 +58,6 @@ const config = {
     Settings: "settings",
   },
 }
-
 
 /**
  * This is the root component of our app.
