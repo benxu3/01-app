@@ -25,11 +25,21 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
   const handleTextChange = useCallback(
     (input: string) => {
       connectionStore.saveLivekitUrl(input)
+      console.log("URL IS: ", connectionStore.livekitUrl)
+    },
+    [connectionStore],
+  )
+
+  const handleTokenChange = useCallback(
+    (input: string) => {
+      connectionStore.setProp("token", input)
+      console.log("TOKEN IS: ", connectionStore.token)
     },
     [connectionStore],
   )
 
   const handleLocalConnect = useCallback(async () => {
+    /** 
     await connectionStore.set_token()
 
     if (connectionStore.error) {
@@ -38,8 +48,12 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
       navigation.navigate("Login")
       return
     }
-
-    navigation.navigate("Room")
+    */
+    if (connectionStore.token !== "" && connectionStore.livekitUrl !== "") {
+      navigation.navigate("Room")
+    } else {
+      Alert.alert("ERROR: EITHER TOKEN OR URL IS EMPTY")
+    }
   }, [navigation])
 
   const handleScan = useCallback(async () => {
@@ -53,8 +67,13 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
           <TextField
             onChangeText={handleTextChange}
             style={$devInput}
-            // value={connectionStore.livekitUrl}
+            value={connectionStore.livekitUrl}
             placeholder="Your LiveKit URL"
+          />
+          <TextField
+            onChangeText={handleTokenChange}
+            style={$devInput}
+            placeholder="Your LiveKit Token"
           />
           <Button
             testID="loginButton"
