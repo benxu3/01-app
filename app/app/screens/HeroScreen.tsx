@@ -25,7 +25,8 @@ import { WelcomeScreenWrapper } from "./WelcomeScreen"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { useAudioSetup } from "../utils/useAudioSetup"
 import { useTranscriptionHook } from "../utils/useTranscription"
-import { useTheme } from "../utils/useTheme" // Import the useTheme hook
+import { FloatingActionButton } from "../components/FloatingActionButton"
+import { useTheme } from "../utils/useTheme"
 
 export const HeroScreen: FC<ScreenStackScreenProps<"Hero">> = observer(function HeroScreen(_props) {
   const isRevealed = useRef(false)
@@ -96,6 +97,12 @@ export const HeroScreen: FC<ScreenStackScreenProps<"Hero">> = observer(function 
     navigation.navigate("Settings")
   }, [])
 
+  const isExpanded = useSharedValue(false)
+
+  const handlePress = () => {
+    isExpanded.value = !isExpanded.value
+  }
+
   return (
     <>
       {agentAudioTrack && audioTrackReady ? (
@@ -110,7 +117,7 @@ export const HeroScreen: FC<ScreenStackScreenProps<"Hero">> = observer(function 
               contentContainerStyle={$topContainer(isDarkMode)}
             >
               <TranscriptionTile
-                agentAudioTrack={agentAudioTrack}      
+                agentAudioTrack={agentAudioTrack}
                 transcripts={filteredTranscripts}
                 setTranscripts={setTranscripts}
                 messages={filteredMessages}
@@ -148,12 +155,34 @@ export const HeroScreen: FC<ScreenStackScreenProps<"Hero">> = observer(function 
               contentContainerStyle={$chatInputContainer(isDarkMode)}
             >
               <ChatMessageInput
-                placeholder="Type a message"
                 onSend={sendChat}
                 isDarkMode={isDarkMode}
+                handlePlusIcon={handlePress}
+                isExpanded={isExpanded}
               />
             </Screen>
           </Animated.View>
+
+          <View style={$floatingButtonContainer}>
+            <FloatingActionButton
+              isExpanded={isExpanded}
+              index={1}
+              buttonLetter="M"
+              isDarkMode={isDarkMode}
+            />
+            <FloatingActionButton
+              isExpanded={isExpanded}
+              index={2}
+              buttonLetter="W"
+              isDarkMode={isDarkMode}
+            />
+            <FloatingActionButton
+              isExpanded={isExpanded}
+              index={3}
+              buttonLetter="S"
+              isDarkMode={isDarkMode}
+            />
+          </View>
 
           <View testID="settingsIcon" style={$settingContainer}>
             <Icon
@@ -188,6 +217,12 @@ const $settingContainer: ViewStyle = {
   right: spacing.xl,
   zIndex: 1000,
   opacity: 0.5,
+}
+
+const $floatingButtonContainer: ViewStyle = {
+  position: "absolute",
+  bottom: spacing.xxl + spacing.md + spacing.xxs,
+  left: spacing.md,
 }
 
 const $keyboardAvoidingView: ViewStyle = {
