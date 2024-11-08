@@ -15,6 +15,7 @@ import { ChatMessageInput } from "../components/ChatMessageInput"
 import { useLocalParticipant, useConnectionState } from "@livekit/react-native"
 import { ConnectionState } from "livekit-client"
 import { useChat } from "@livekit/components-react"
+import { mediaDevices } from "@livekit/react-native-webrtc"
 import { useStores } from "../models"
 import { AudioVisualizer } from "../components/AudioVisualizer"
 import { ChatMessageType } from "../components/Chat"
@@ -25,8 +26,8 @@ import { WelcomeScreenWrapper } from "./WelcomeScreen"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { useAudioSetup } from "../utils/useAudioSetup"
 import { useTranscriptionHook } from "../utils/useTranscription"
-import { FloatingActionButton } from "../components/FloatingActionButton"
 import { useTheme } from "../utils/useTheme"
+import { FloatingActionMenu } from "app/components/FloatingActionMenu"
 
 export const HeroScreen: FC<ScreenStackScreenProps<"Hero">> = observer(function HeroScreen(_props) {
   const isRevealed = useRef(false)
@@ -34,7 +35,8 @@ export const HeroScreen: FC<ScreenStackScreenProps<"Hero">> = observer(function 
 
   const { isDarkMode } = useTheme()
 
-  const { localParticipant } = useLocalParticipant()
+  const { localParticipant, isCameraEnabled } = useLocalParticipant()
+  const [isCameraFrontFacing, setCameraFrontFacing] = useState(true)
   const roomState = useConnectionState()
   const { settingStore } = useStores()
   const { send: sendChat } = useChat()
@@ -163,26 +165,36 @@ export const HeroScreen: FC<ScreenStackScreenProps<"Hero">> = observer(function 
             </Screen>
           </Animated.View>
 
-          <View style={$floatingButtonContainer}>
-            <FloatingActionButton
-              isExpanded={isExpanded}
-              index={1}
-              buttonLetter="M"
-              isDarkMode={isDarkMode}
-            />
-            <FloatingActionButton
-              isExpanded={isExpanded}
-              index={2}
-              buttonLetter="W"
-              isDarkMode={isDarkMode}
-            />
-            <FloatingActionButton
-              isExpanded={isExpanded}
-              index={3}
-              buttonLetter="S"
-              isDarkMode={isDarkMode}
-            />
-          </View>
+          <FloatingActionMenu
+            expanded={isExpanded}
+            darkMode={isDarkMode}
+            cameraEnabled={isCameraEnabled}
+            setCameraEnabled={(enabled: boolean) => {
+              localParticipant.setCameraEnabled(enabled)
+            }}
+            switchCamera={async () => {
+              const facingModeStr = !isCameraFrontFacing ? "front" : "environment"
+              setCameraFrontFacing(!isCameraFrontFacing)
+
+              const devices = await mediaDevices.enumerateDevices()
+              let newDevice
+              // @ts-ignore
+              for (const device of devices) {
+                // @ts-ignore
+                if (device.kind === "videoinput" && device.facing === facingModeStr) {
+                  newDevice = device
+                  break
+                }
+              }
+
+              if (newDevice == null) {
+                return
+              }
+
+              // @ts-ignore
+              await room.switchActiveDevice("videoinput", newDevice.deviceId)
+            }}
+          />
 
           <View testID="settingsIcon" style={$settingContainer}>
             <Icon
@@ -217,12 +229,6 @@ const $settingContainer: ViewStyle = {
   right: spacing.xl,
   zIndex: 1000,
   opacity: 0.5,
-}
-
-const $floatingButtonContainer: ViewStyle = {
-  position: "absolute",
-  bottom: spacing.xxl + spacing.md + spacing.xxs,
-  left: spacing.md,
 }
 
 const $keyboardAvoidingView: ViewStyle = {

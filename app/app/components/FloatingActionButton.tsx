@@ -1,61 +1,5 @@
-/**
 import React from "react"
-import { ViewStyle, Pressable, TextStyle } from "react-native"
-import Animated, {
-  withDelay,
-  useAnimatedStyle,
-  withSpring,
-  withTiming,
-  SharedValue,
-} from "react-native-reanimated"
-
-const AnimatedPressable = Animated.createAnimatedComponent(Pressable)
-
-const SPRING_CONFIG = {
-  duration: 1200,
-  overshootClamping: true,
-  dampingRatio: 0.8,
-}
-
-const OFFSET = 60
-
-interface FloatingActionButtonProps {
-  isExpanded: SharedValue<boolean>
-  index: number
-  buttonLetter: string
-}
-export const FloatingActionButton = ({
-  isExpanded,
-  index,
-  buttonLetter,
-}: FloatingActionButtonProps) => {
-  const animatedStyles = useAnimatedStyle(() => {
-    const moveValue = isExpanded.value ? OFFSET * index : 0
-    const translateValue = withSpring(-moveValue, SPRING_CONFIG)
-    const delay = index * 100
-
-    const scaleValue = isExpanded.value ? 1 : 0
-
-    return {
-      transform: [
-        { translateY: translateValue },
-        {
-          scale: withDelay(delay, withTiming(scaleValue)),
-        },
-      ],
-    }
-  })
-
-  return (
-    <AnimatedPressable style={[animatedStyles, $shadow, $button]}>
-      <Animated.Text style={$content}>{buttonLetter}</Animated.Text>
-    </AnimatedPressable>
-  )
-}
-*/
-
-import React from "react"
-import { ViewStyle, Pressable, TextStyle, View, TouchableOpacity } from "react-native"
+import { ViewStyle, Pressable, ImageStyle, View, TouchableOpacity, Image } from "react-native"
 import Animated, {
   withDelay,
   useAnimatedStyle,
@@ -79,7 +23,7 @@ const OFFSET = 60
 interface FloatingActionButtonProps {
   isExpanded: SharedValue<boolean>
   index?: number
-  buttonLetter?: string
+  source?: any
   isPrimary?: boolean
   onPress?: () => void
   isDarkMode: boolean
@@ -88,7 +32,7 @@ interface FloatingActionButtonProps {
 export const FloatingActionButton = ({
   isExpanded,
   index = 0,
-  buttonLetter,
+  source,
   isPrimary = false,
   onPress,
   isDarkMode,
@@ -128,7 +72,7 @@ export const FloatingActionButton = ({
 
   return (
     <AnimatedPressable style={[animatedStyles, $button]}>
-      <Animated.Text style={$content}>{buttonLetter}</Animated.Text>
+      <Image style={$icon} source={source} />
     </AnimatedPressable>
   )
 }
@@ -145,7 +89,7 @@ const $plusIconContainer = (isDarkMode: boolean): ViewStyle => ({
 const $plusButton: ViewStyle = {
   width: 34,
   height: 34,
-  backgroundColor: "#626262",
+  backgroundColor: "transparent",
   borderRadius: 17,
   display: "flex",
   justifyContent: "center",
@@ -167,7 +111,7 @@ const $button: ViewStyle = {
   flexDirection: "row",
 }
 
-const $content: TextStyle = {
-  color: "#f8f9ff",
-  fontWeight: "500", // Changed from 500 to "500" to fix type error
+const $icon: ImageStyle = {
+  width: 32,
+  height: 32,
 }
