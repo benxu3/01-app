@@ -34,6 +34,7 @@ import { useTranscriptionHook } from "../utils/useTranscription"
 import { useTheme } from "../utils/useTheme"
 import { FloatingActionMenu } from "app/components/FloatingActionMenu"
 import { ParticipantView } from "app/components/ParticipantView"
+import { RoomControls } from "app/components/FullscreenControls"
 
 export const HeroScreen: FC<ScreenStackScreenProps<"Hero">> = observer(function HeroScreen(_props) {
   const isRevealed = useRef(false)
@@ -165,9 +166,44 @@ export const HeroScreen: FC<ScreenStackScreenProps<"Hero">> = observer(function 
                 safeAreaEdges={isRevealed.current ? ["top"] : []}
               >
                 {isCameraEnabled ? (
-                  <View style={$fullSize}>{participantView}</View>
+                  <View style={[$fullSize, isWearable && $fullscreenParticipant]}>
+                    {participantView}
+                  </View>
                 ) : (
                   <AudioVisualizer />
+                )}
+
+                {isWearable && (
+                  <View style={$wearableControlsContainer}>
+                    <RoomControls
+                      cameraEnabled={isCameraEnabled}
+                      setCameraEnabled={(enabled: boolean) => {
+                        localParticipant.setCameraEnabled(enabled)
+                      }}
+                      switchCamera={async () => {
+                        const facingModeStr = !isCameraFrontFacing ? "front" : "environment"
+                        setCameraFrontFacing(!isCameraFrontFacing)
+
+                        const devices = await mediaDevices.enumerateDevices()
+                        let newDevice
+                        // @ts-ignore
+                        for (const device of devices) {
+                          // @ts-ignore
+                          if (device.kind === "videoinput" && device.facing === facingModeStr) {
+                            newDevice = device
+                            break
+                          }
+                        }
+
+                        if (newDevice == null) {
+                          return
+                        }
+
+                        // @ts-ignore
+                        await room.switchActiveDevice("videoinput", newDevice.deviceId)
+                      }}
+                    />
+                  </View>
                 )}
               </Screen>
             </TouchableOpacity>
@@ -272,11 +308,23 @@ const $bottomContainer = (isDarkMode: boolean): ViewStyle => ({
   flex: 1,
   alignItems: "center",
   backgroundColor: isDarkMode ? "black" : "white",
+  position: "relative",
 })
 
 const $justifyBottomContainer = (isWearable: boolean): ViewStyle => ({
   justifyContent: isWearable ? "center" : "flex-start",
 })
+
+const $wearableControlsContainer: ViewStyle = {
+  position: "absolute",
+  bottom: spacing.md,
+  width: "100%",
+  alignItems: "center",
+}
+
+const $fullscreenParticipant: ViewStyle = {
+  marginBottom: spacing.xxxl * 2.1,
+}
 
 const $chatInputContainer = (isDarkMode: boolean): ViewStyle => ({
   paddingBottom: spacing.md,

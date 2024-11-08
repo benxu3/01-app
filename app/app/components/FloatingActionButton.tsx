@@ -1,5 +1,5 @@
 import React from "react"
-import { ViewStyle, ImageStyle, View, TouchableOpacity, Image } from "react-native"
+import { ViewStyle, View, TouchableOpacity } from "react-native"
 import Animated, {
   withDelay,
   useAnimatedStyle,
@@ -72,7 +72,7 @@ export const FloatingActionButton = ({
 
   return (
     <AnimatedTouchableOpacity style={[animatedStyles, $button]} onPress={onPress}>
-      <Image style={$icon} source={source} />
+      {source}
     </AnimatedTouchableOpacity>
   )
 }
@@ -109,9 +109,4 @@ const $button: ViewStyle = {
   justifyContent: "center",
   alignItems: "center",
   flexDirection: "row",
-}
-
-const $icon: ImageStyle = {
-  width: 32,
-  height: 32,
 }

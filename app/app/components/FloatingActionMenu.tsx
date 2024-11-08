@@ -2,6 +2,7 @@ import * as React from "react"
 import { View, ViewStyle } from "react-native"
 import { SharedValue } from "react-native-reanimated"
 import { FloatingActionButton } from "./FloatingActionButton"
+import FontAwesome6 from "@expo/vector-icons/FontAwesome6"
 import { spacing } from "app/theme"
 
 export type FloatingActionMenuProps = {
@@ -23,11 +24,13 @@ export const FloatingActionMenu = ({
 // setScreenShareEnabled,
 
 FloatingActionMenuProps) => {
-  const cameraImage = cameraEnabled
-    ? require("../../assets/icons/baseline_videocam_white_24dp.png")
-    : require("../../assets/icons/baseline_videocam_off_white_24dp.png")
+  const cameraImage = cameraEnabled ? (
+    <FontAwesome6 name="video" size={24} color="white" />
+  ) : (
+    <FontAwesome6 name="video-slash" size={24} color="white" />
+  )
 
-  const flipCamera = require("../../assets/icons/camera_flip_outline.png")
+  const flipCamera = <FontAwesome6 name="camera-rotate" size={26} color="white" />
   /** 
   const screenShareImage = screenShareEnabled
     ? require("../../assets/icons/baseline_cast_connected_white_24dp.png")

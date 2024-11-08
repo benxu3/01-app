@@ -1,6 +1,6 @@
 import * as React from "react"
 
-import { Image, ImageStyle, View, ViewStyle } from "react-native"
+import { View, ViewStyle } from "react-native"
 import {
   isTrackReference,
   TrackReferenceOrPlaceholder,
@@ -14,6 +14,7 @@ import { Text } from "./Text"
 import { useTheme } from "@react-navigation/native"
 import { Track } from "livekit-client"
 import { spacing } from "app/theme"
+import FontAwesome6 from "@expo/vector-icons/FontAwesome6"
 
 export type ParticipantViewProps = {
   trackRef: TrackReferenceOrPlaceholder
@@ -40,10 +41,7 @@ export const ParticipantView = ({ trackRef, zOrder, mirror, style }: Participant
     videoView = (
       <View style={$videoView}>
         <View style={$spacer} />
-        <Image
-          style={$icon}
-          source={require("../../assets/icons/baseline_videocam_off_white_24dp.png")}
-        />
+        <FontAwesome6 name="video-slash" size={24} color="white" />
         <View style={$spacer} />
       </View>
     )
@@ -96,10 +94,4 @@ const $identityBar: ViewStyle = {
   paddingBottom: spacing.md,
   width: "100%",
   padding: 2,
-}
-
-const $icon: ImageStyle = {
-  width: 40,
-  height: 40,
-  alignSelf: "center",
 }
