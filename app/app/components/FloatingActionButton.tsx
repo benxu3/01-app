@@ -1,5 +1,5 @@
 import React from "react"
-import { ViewStyle, Pressable, ImageStyle, View, TouchableOpacity, Image } from "react-native"
+import { ViewStyle, ImageStyle, View, TouchableOpacity, Image } from "react-native"
 import Animated, {
   withDelay,
   useAnimatedStyle,
@@ -10,7 +10,7 @@ import Animated, {
 import AntDesign from "@expo/vector-icons/AntDesign"
 import { spacing } from "app/theme"
 
-const AnimatedPressable = Animated.createAnimatedComponent(Pressable)
+const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity)
 
 const SPRING_CONFIG = {
   duration: 1200,
@@ -71,9 +71,9 @@ export const FloatingActionButton = ({
   }
 
   return (
-    <AnimatedPressable style={[animatedStyles, $button]}>
+    <AnimatedTouchableOpacity style={[animatedStyles, $button]} onPress={onPress}>
       <Image style={$icon} source={source} />
-    </AnimatedPressable>
+    </AnimatedTouchableOpacity>
   )
 }
 
@@ -100,11 +100,11 @@ const $plusButton: ViewStyle = {
 }
 
 const $button: ViewStyle = {
-  width: 34,
-  height: 34,
+  width: 40,
+  height: 40,
   backgroundColor: "#626262",
   position: "absolute",
-  borderRadius: 17,
+  borderRadius: 20,
   display: "flex",
   justifyContent: "center",
   alignItems: "center",

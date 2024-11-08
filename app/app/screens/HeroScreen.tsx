@@ -6,15 +6,21 @@ import {
   KeyboardAvoidingView,
   Platform,
   Keyboard,
+  ImageStyle,
 } from "react-native"
 import { Screen, Icon } from "../components"
 import { ScreenStackScreenProps } from "../navigators/ScreenNavigator"
 import { spacing } from "../theme"
 import { TranscriptionTile } from "app/components/Transcript"
 import { ChatMessageInput } from "../components/ChatMessageInput"
-import { useLocalParticipant, useConnectionState } from "@livekit/react-native"
-import { ConnectionState } from "livekit-client"
-import { useChat } from "@livekit/components-react"
+import {
+  useLocalParticipant,
+  useConnectionState,
+  useTracks,
+  useVisualStableUpdate,
+} from "@livekit/react-native"
+import { ConnectionState, Track } from "livekit-client"
+import { useChat, useRoomContext } from "@livekit/components-react"
 import { mediaDevices } from "@livekit/react-native-webrtc"
 import { useStores } from "../models"
 import { AudioVisualizer } from "../components/AudioVisualizer"
@@ -28,6 +34,7 @@ import { useAudioSetup } from "../utils/useAudioSetup"
 import { useTranscriptionHook } from "../utils/useTranscription"
 import { useTheme } from "../utils/useTheme"
 import { FloatingActionMenu } from "app/components/FloatingActionMenu"
+import { ParticipantView } from "app/components/ParticipantView"
 
 export const HeroScreen: FC<ScreenStackScreenProps<"Hero">> = observer(function HeroScreen(_props) {
   const isRevealed = useRef(false)
@@ -57,6 +64,19 @@ export const HeroScreen: FC<ScreenStackScreenProps<"Hero">> = observer(function 
   )
 
   const { filteredMessages, filteredTranscripts } = useTranscriptionHook(messages, transcripts)
+
+  const room = useRoomContext()
+  // setup participant camera track
+  const tracks = useTracks(
+    [
+      { source: Track.Source.Camera, withPlaceholder: true },
+      { source: Track.Source.ScreenShare, withPlaceholder: false },
+    ],
+    { onlySubscribed: false },
+  )
+  const stableTracks = useVisualStableUpdate(tracks, 5)
+  const participantTrack = stableTracks.find((track) => track.participant.name === "You")
+  const participantView = participantTrack && <ParticipantView trackRef={participantTrack} />
 
   useEffect(() => {
     if (roomState === ConnectionState.Disconnected || roomState === ConnectionState.Reconnecting) {
@@ -145,7 +165,11 @@ export const HeroScreen: FC<ScreenStackScreenProps<"Hero">> = observer(function 
                 ]}
                 safeAreaEdges={isRevealed.current ? ["top"] : []}
               >
-                <AudioVisualizer />
+                {isCameraEnabled ? (
+                  <View style={$fullSize}>{participantView}</View>
+                ) : (
+                  <AudioVisualizer />
+                )}
               </Screen>
             </TouchableOpacity>
           </Animated.View>
