@@ -26,7 +26,7 @@ import { AudioVisualizer } from "../components/AudioVisualizer"
 import { ChatMessageType } from "../components/Chat"
 import { observer } from "mobx-react-lite"
 import { toJS } from "mobx"
-import Animated, { useAnimatedStyle, useSharedValue } from "react-native-reanimated"
+import Animated, { useAnimatedStyle, useSharedValue, withSpring } from "react-native-reanimated"
 import { WelcomeScreenWrapper } from "./WelcomeScreen"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { useAudioSetup } from "../utils/useAudioSetup"
@@ -75,8 +75,34 @@ export const HeroScreen: FC<ScreenStackScreenProps<"Hero">> = observer(function 
     { onlySubscribed: false },
   )
   const stableTracks = useVisualStableUpdate(tracks, 5)
+
+  // Add this near other useSharedValue declarations
+  const scale = useSharedValue(1)
+
+  // Add these animation handlers
+  const handlePressIn = () => {
+    scale.value = withSpring(0.95)
+    if (settingStore.pushToTalk) unmute()
+  }
+
+  const handlePressOut = () => {
+    scale.value = withSpring(1)
+    if (settingStore.pushToTalk) mute()
+  }
+
+  // Add this animated style
+  const $scaleStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+    flex: 1,
+    width: "100%",
+  }))
+
   const participantTrack = stableTracks.find((track) => track.participant.name === "You")
-  const participantView = participantTrack && <ParticipantView trackRef={participantTrack} />
+  const participantView = participantTrack && (
+    <Animated.View style={$scaleStyle}>
+      <ParticipantView trackRef={participantTrack} />
+    </Animated.View>
+  )
 
   useEffect(() => {
     if (roomState === ConnectionState.Disconnected || roomState === ConnectionState.Reconnecting) {
@@ -152,8 +178,8 @@ export const HeroScreen: FC<ScreenStackScreenProps<"Hero">> = observer(function 
             <TouchableOpacity
               testID="audioVisualizer"
               style={$fullSize}
-              onPressIn={settingStore.pushToTalk ? unmute : undefined}
-              onPressOut={settingStore.pushToTalk ? mute : undefined}
+              onPressIn={handlePressIn}
+              onPressOut={handlePressOut}
               activeOpacity={1}
             >
               <Screen
