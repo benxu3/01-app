@@ -44,16 +44,17 @@ FloatingActionMenuProps) => {
         isDarkMode={darkMode}
         source={cameraImage}
       />
-
-      <FloatingActionButton
-        isExpanded={expanded}
-        index={2}
-        onPress={() => {
-          switchCamera()
-        }}
-        isDarkMode={darkMode}
-        source={flipCamera}
-      />
+      {cameraEnabled && (
+        <FloatingActionButton
+          isExpanded={expanded}
+          index={2}
+          onPress={() => {
+            switchCamera()
+          }}
+          isDarkMode={darkMode}
+          source={flipCamera}
+        />
+      )}
     </View>
   )
 }

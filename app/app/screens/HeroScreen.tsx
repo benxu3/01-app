@@ -6,7 +6,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   Keyboard,
-  ImageStyle,
 } from "react-native"
 import { Screen, Icon } from "../components"
 import { ScreenStackScreenProps } from "../navigators/ScreenNavigator"

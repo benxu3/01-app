@@ -2,9 +2,11 @@ import React, { useState, useCallback } from "react"
 import { View, TouchableOpacity, ViewStyle, TextStyle, Dimensions } from "react-native"
 import { TextField } from "./TextField"
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6"
+import MaterialIcons from "@expo/vector-icons/MaterialIcons"
 import { useStores } from "../models"
 import { FloatingActionButton } from "./FloatingActionButton"
 import { SharedValue } from "react-native-reanimated"
+import { spacing } from "app/theme"
 
 type ChatMessageInputProps = {
   onSend?: (message: string) => void
@@ -39,6 +41,14 @@ export const ChatMessageInput = ({
   const textColor = isDarkMode ? "white" : "black"
   const placeholderText = "Type a message"
 
+  const handleFullscreen = () => {
+    if (!settingStore.wearable) {
+      isExpanded.value = false
+    }
+
+    settingStore.setProp("wearable", !settingStore.wearable)
+  }
+
   return (
     <View style={$inputContainer}>
       <FloatingActionButton
@@ -67,8 +77,35 @@ export const ChatMessageInput = ({
           )
         }
       />
+      <TouchableOpacity style={$fullscreenButton} onPress={handleFullscreen}>
+        <View style={$fullscreenIconContainer(isDarkMode)}>
+          <MaterialIcons name="fullscreen" size={24} color="white" />
+        </View>
+      </TouchableOpacity>
     </View>
   )
+}
+
+const $fullscreenIconContainer = (isDarkMode: boolean): ViewStyle => ({
+  width: 34,
+  height: 34,
+  borderRadius: 17,
+  backgroundColor: isDarkMode ? "rgba(255, 255, 255, 0.5)" : "rgba(0, 0, 0, 0.5)",
+  justifyContent: "center",
+  alignItems: "center",
+})
+
+const $fullscreenButton: ViewStyle = {
+  width: 34,
+  height: 34,
+  backgroundColor: "transparent",
+  borderRadius: 17,
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  flexDirection: "row",
+  margin: spacing.xxs,
+  marginLeft: spacing.md,
 }
 
 const $inputContainer: ViewStyle = {
