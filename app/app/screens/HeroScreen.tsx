@@ -120,6 +120,8 @@ export const HeroScreen: FC<ScreenStackScreenProps<"Hero">> = observer(function 
       chatFlexValue.value = 7
     })
 
+    settingStore.autorunOff(sendChat)
+
     return () => {
       keyboardDidShowListener.remove()
       keyboardDidHideListener.remove()

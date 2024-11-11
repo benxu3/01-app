@@ -71,6 +71,12 @@ export const RoomScreen: FC<RoomScreenProps> = observer(function RoomScreen(_pro
     }
   }, [])
 
+  const handleConnectionError = (error: Error) => {
+    console.error("LiveKit connection error:", error)
+    Alert.alert("Connection Error", "Failed to connect to the room. Please try again.")
+    navigation.navigate("Login")
+  }
+
   return (
     <View style={$darkModeView}>
       {!isReady ? (
@@ -80,13 +86,14 @@ export const RoomScreen: FC<RoomScreenProps> = observer(function RoomScreen(_pro
           <LiveKitRoom
             serverUrl={connectionStore.livekitUrl}
             token={connectionStore.token}
-            connect={true}
+            connect={isReady}
             options={{
               // Use screen pixel density to handle screens with differing densities.
               adaptiveStream: { pixelDensity: "screen" },
             }}
             audio={true}
             video={false}
+            onError={handleConnectionError}
           >
             <ScreenNavigator />
           </LiveKitRoom>
