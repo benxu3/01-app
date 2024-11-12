@@ -18,23 +18,31 @@ import {
   useTracks,
   useVisualStableUpdate,
 } from "@livekit/react-native"
-import { ConnectionState, Track } from "livekit-client"
-import { useChat, useRoomContext } from "@livekit/components-react"
+import {
+  ConnectionState,
+  Track,
+  TranscriptionSegment,
+  Participant,
+  RoomEvent,
+} from "livekit-client"
+import { useChat, useRoomContext, useDataChannel } from "@livekit/components-react"
 import { mediaDevices } from "@livekit/react-native-webrtc"
 import { useStores } from "../models"
 import { AudioVisualizer } from "../components/AudioVisualizer"
-import { ChatMessageType } from "../components/Chat"
 import { observer } from "mobx-react-lite"
 import { toJS } from "mobx"
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from "react-native-reanimated"
 import { WelcomeScreenWrapper } from "./WelcomeScreen"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { useAudioSetup } from "../utils/useAudioSetup"
-import { useTranscriptionHook } from "../utils/useTranscription"
 import { useTheme } from "../utils/useTheme"
 import { FloatingActionMenu } from "app/components/FloatingActionMenu"
 import { ParticipantView } from "app/components/ParticipantView"
 import { RoomControls } from "app/components/FullscreenControls"
+
+export interface TranscriptionSegmentWithParticipant extends TranscriptionSegment {
+  participantId: string
+}
 
 export const HeroScreen: FC<ScreenStackScreenProps<"Hero">> = observer(function HeroScreen(_props) {
   const isRevealed = useRef(false)
@@ -48,13 +56,16 @@ export const HeroScreen: FC<ScreenStackScreenProps<"Hero">> = observer(function 
   const { settingStore } = useStores()
   const { send: sendChat } = useChat()
 
-  const [messages, setMessages] = useState<ChatMessageType[]>([])
-  const [transcripts, setTranscripts] = useState<Map<string, ChatMessageType>>(new Map())
+  const [transcriptions, setTranscriptions] = useState<{
+    [id: string]: TranscriptionSegmentWithParticipant
+  }>({})
 
   const isWearable = toJS(settingStore.wearable)
   const insets = useSafeAreaInsets()
   const [_, setKeyboardVisible] = useState(false)
   const chatFlexValue = useSharedValue(7)
+
+  const [accumulatedCode, setAccumulatedCode] = useState("")
 
   const { audioTrackReady, agentAudioTrack, unmute, mute } = useAudioSetup(
     localParticipant,
@@ -62,8 +73,6 @@ export const HeroScreen: FC<ScreenStackScreenProps<"Hero">> = observer(function 
     settingStore,
     navigation,
   )
-
-  const { filteredMessages, filteredTranscripts } = useTranscriptionHook(messages, transcripts)
 
   const room = useRoomContext()
   // setup participant camera track
@@ -103,6 +112,34 @@ export const HeroScreen: FC<ScreenStackScreenProps<"Hero">> = observer(function 
       <ParticipantView trackRef={participantTrack} />
     </Animated.View>
   )
+
+  const updateTranscriptions = (segments: TranscriptionSegment[], participant?: Participant) => {
+    setTranscriptions((prev) => {
+      const newTranscriptions = { ...prev }
+      for (const segment of segments) {
+        newTranscriptions[segment.id.toString()] = {
+          ...segment,
+          participantId: participant?.identity ?? "unknown",
+        }
+      }
+      return newTranscriptions
+    })
+  }
+
+  useEffect(() => {
+    console.log("transcriptions is: ", transcriptions)
+  }, [transcriptions])
+
+  useEffect(() => {
+    if (!room) {
+      return
+    }
+
+    room.on(RoomEvent.TranscriptionReceived, updateTranscriptions)
+    return () => {
+      room.off(RoomEvent.TranscriptionReceived, updateTranscriptions)
+    }
+  }, [room])
 
   useEffect(() => {
     if (roomState === ConnectionState.Disconnected || roomState === ConnectionState.Reconnecting) {
@@ -153,6 +190,31 @@ export const HeroScreen: FC<ScreenStackScreenProps<"Hero">> = observer(function 
     isExpanded.value = !isExpanded.value
   }
 
+  useDataChannel("code", (msg) => {
+    if (typeof msg === "object" && msg !== null && "payload" in msg) {
+      const payload = Array.from(msg.payload as Uint8Array)
+      const decodedPayload = String.fromCharCode(...payload)
+
+      if (decodedPayload === "{CLEAR}") {
+        // Perform side effects after code block is complete
+        console.log("Code block complete:", accumulatedCode)
+
+        console.log("AUTORUN IS ", settingStore.autorun)
+        // CHECK IF WE ARE ON AUTORUN TRUE OR FALSE
+        // in AUTORUN FALSE we should ask the user to respond with "yes" if they want to run the code
+
+        // Reset accumulated code after processing
+        setAccumulatedCode("")
+      } else {
+        setAccumulatedCode((prevCode) => prevCode + decodedPayload)
+      }
+    }
+  })
+
+  useEffect(() => {
+    console.log("code block: ", accumulatedCode)
+  }, [accumulatedCode])
+
   return (
     <>
       {agentAudioTrack && audioTrackReady ? (
@@ -166,13 +228,7 @@ export const HeroScreen: FC<ScreenStackScreenProps<"Hero">> = observer(function 
               backgroundColor={$darkMode(isDarkMode)}
               contentContainerStyle={$topContainer(isDarkMode)}
             >
-              <TranscriptionTile
-                agentAudioTrack={agentAudioTrack}
-                transcripts={filteredTranscripts}
-                setTranscripts={setTranscripts}
-                messages={filteredMessages}
-                setMessages={setMessages}
-              />
+              <TranscriptionTile transcripts={transcriptions} />
             </Screen>
           </Animated.View>
 

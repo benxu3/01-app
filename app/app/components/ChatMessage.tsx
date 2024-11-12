@@ -3,6 +3,7 @@ import { View, ViewStyle, TextStyle } from "react-native"
 import { Text } from "./Text"
 import { typography } from "../theme"
 import { useTheme } from "../utils/useTheme"
+// import Markdown from "react-native-markdown-display"
 
 type ChatMessageProps = {
   message: string
@@ -10,21 +11,25 @@ type ChatMessageProps = {
   isConsecutive?: boolean
 }
 
-const ChatMessage = ({
-  message,
-  isSelf,
-}: 
-ChatMessageProps) => {
+const ChatMessage = ({ message, isSelf }: ChatMessageProps) => {
   const { theme } = useTheme()
 
   return (
-    <View
-      style={ $container }
-    >
-      <Text
-        size="sm"
-        style={[$message, $getSelfMessage(isSelf, theme.accent), !isSelf && $textShadow]}
+    <View style={$container}>
+      {/** 
+      <Markdown
+        style={{
+          body: {
+            ...$message,
+            ...$getSelfMessage(isSelf, theme.accent),
+            ...(!isSelf ? $textShadow : {}),
+          },
+        }}
       >
+        {message}
+      </Markdown>
+        */}
+      <Text style={[$message, $getSelfMessage(isSelf, theme.accent), !isSelf && $textShadow]}>
         {message}
       </Text>
     </View>
