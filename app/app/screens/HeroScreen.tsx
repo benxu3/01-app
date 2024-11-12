@@ -228,7 +228,7 @@ export const HeroScreen: FC<ScreenStackScreenProps<"Hero">> = observer(function 
               backgroundColor={$darkMode(isDarkMode)}
               contentContainerStyle={$topContainer(isDarkMode)}
             >
-              <TranscriptionTile transcripts={transcriptions} />
+              <TranscriptionTile transcripts={transcriptions} setTranscripts={setTranscriptions} />
             </Screen>
           </Animated.View>
 

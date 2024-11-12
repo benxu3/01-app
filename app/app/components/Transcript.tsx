@@ -1,16 +1,46 @@
-import React from "react"
+import React, { useEffect } from "react"
 import { ChatTile } from "./Chat"
 import { Dimensions, View, ViewStyle } from "react-native"
 import { LinearGradient } from "expo-linear-gradient"
 import { useTheme } from "../utils/useTheme"
 import { TranscriptionSegmentWithParticipant } from "../screens/HeroScreen"
+import { Participant, Track, TranscriptionSegment } from "livekit-client"
+import { useLocalParticipant, useTrackTranscription } from "@livekit/components-react"
 
 export function TranscriptionTile({
   transcripts,
+  setTranscripts,
 }: {
   transcripts: { [id: string]: TranscriptionSegmentWithParticipant }
+  setTranscripts: React.Dispatch<
+    React.SetStateAction<{ [id: string]: TranscriptionSegmentWithParticipant }>
+  >
 }) {
   const { isDarkMode } = useTheme()
+
+  const localParticipant = useLocalParticipant()
+  const localMessages = useTrackTranscription({
+    publication: localParticipant.microphoneTrack,
+    source: Track.Source.Microphone,
+    participant: localParticipant.localParticipant,
+  })
+
+  const updateTranscripts = (segments: TranscriptionSegment[], participant: Participant) => {
+    setTranscripts((prevTranscripts) => {
+      const newTranscriptions = { ...prevTranscripts }
+      for (const segment of segments) {
+        newTranscriptions[segment.id.toString()] = {
+          ...segment,
+          participantId: participant?.identity ?? "unknown",
+        }
+      }
+      return newTranscriptions
+    })
+  }
+
+  useEffect(() => {
+    updateTranscripts(localMessages.segments, localParticipant.localParticipant)
+  }, [localMessages.segments, localParticipant.localParticipant])
 
   return (
     <View style={$transcriptionContainer}>
