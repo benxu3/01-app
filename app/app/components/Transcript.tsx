@@ -1,46 +1,12 @@
-import React, { useEffect } from "react"
+import React from "react"
 import { ChatTile } from "./Chat"
 import { Dimensions, View, ViewStyle } from "react-native"
 import { LinearGradient } from "expo-linear-gradient"
 import { useTheme } from "../utils/useTheme"
-import { TranscriptionSegmentWithParticipant } from "../screens/HeroScreen"
-import { Participant, Track, TranscriptionSegment } from "livekit-client"
-import { useLocalParticipant, useTrackTranscription } from "@livekit/components-react"
+import { UnifiedMessage } from "../screens/HeroScreen"
 
-export function TranscriptionTile({
-  transcripts,
-  setTranscripts,
-}: {
-  transcripts: { [id: string]: TranscriptionSegmentWithParticipant }
-  setTranscripts: React.Dispatch<
-    React.SetStateAction<{ [id: string]: TranscriptionSegmentWithParticipant }>
-  >
-}) {
+export function TranscriptionTile({ messages }: { messages: UnifiedMessage[] }) {
   const { isDarkMode } = useTheme()
-
-  const localParticipant = useLocalParticipant()
-  const localMessages = useTrackTranscription({
-    publication: localParticipant.microphoneTrack,
-    source: Track.Source.Microphone,
-    participant: localParticipant.localParticipant,
-  })
-
-  const updateTranscripts = (segments: TranscriptionSegment[], participant: Participant) => {
-    setTranscripts((prevTranscripts) => {
-      const newTranscriptions = { ...prevTranscripts }
-      for (const segment of segments) {
-        newTranscriptions[segment.id.toString()] = {
-          ...segment,
-          participantId: participant?.identity ?? "unknown",
-        }
-      }
-      return newTranscriptions
-    })
-  }
-
-  useEffect(() => {
-    updateTranscripts(localMessages.segments, localParticipant.localParticipant)
-  }, [localMessages.segments, localParticipant.localParticipant])
 
   return (
     <View style={$transcriptionContainer}>
@@ -52,7 +18,7 @@ export function TranscriptionTile({
         }
         style={$gradientTop}
       />
-      <ChatTile transcripts={transcripts} />
+      <ChatTile messages={messages} />
       <LinearGradient
         colors={
           isDarkMode

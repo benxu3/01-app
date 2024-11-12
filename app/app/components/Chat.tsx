@@ -2,16 +2,12 @@ import React, { useEffect, useRef } from "react"
 import { View, ViewStyle, ScrollView, Dimensions } from "react-native"
 import ChatMessage from "./ChatMessage"
 import { spacing } from "../theme"
-import { TranscriptionSegmentWithParticipant } from "../screens/HeroScreen"
 import { useLocalParticipant } from "@livekit/react-native"
+import { UnifiedMessage } from "app/screens"
 
 const windowHeight = Dimensions.get("window").height
 
-export const ChatTile = ({
-  transcripts,
-}: {
-  transcripts: { [id: string]: TranscriptionSegmentWithParticipant }
-}) => {
+export const ChatTile = ({ messages }: { messages: UnifiedMessage[] }) => {
   const scrollViewRef = useRef<ScrollView>(null)
   const { localParticipant } = useLocalParticipant()
 
@@ -19,7 +15,7 @@ export const ChatTile = ({
     if (scrollViewRef.current) {
       scrollViewRef.current.scrollToEnd({ animated: false })
     }
-  }, [transcripts])
+  }, [messages])
 
   return (
     <View style={$container}>
@@ -29,13 +25,13 @@ export const ChatTile = ({
         contentContainerStyle={$messagesContent}
         scrollEventThrottle={16}
       >
-        {Object.values(transcripts)
-          .sort((a, b) => a.firstReceivedTime - b.firstReceivedTime)
-          .map((segment) => (
+        {messages
+          .sort((a, b) => a.timestamp - b.timestamp)
+          .map((message) => (
             <ChatMessage
-              key={segment.id}
-              message={segment.text}
-              isSelf={segment.participantId === localParticipant?.identity}
+              key={message.id}
+              message={message.text}
+              isSelf={message.participantId === localParticipant?.identity}
             />
           ))}
       </ScrollView>

@@ -25,7 +25,12 @@ import {
   Participant,
   RoomEvent,
 } from "livekit-client"
-import { useChat, useRoomContext, useDataChannel } from "@livekit/components-react"
+import {
+  useChat,
+  useRoomContext,
+  useDataChannel,
+  useTrackTranscription,
+} from "@livekit/components-react"
 import { mediaDevices } from "@livekit/react-native-webrtc"
 import { useStores } from "../models"
 import { AudioVisualizer } from "../components/AudioVisualizer"
@@ -44,13 +49,20 @@ export interface TranscriptionSegmentWithParticipant extends TranscriptionSegmen
   participantId: string
 }
 
+export interface UnifiedMessage {
+  id: string
+  text: string
+  timestamp: number
+  participantId: string
+}
+
 export const HeroScreen: FC<ScreenStackScreenProps<"Hero">> = observer(function HeroScreen(_props) {
   const isRevealed = useRef(false)
   const { navigation } = _props
 
   const { isDarkMode } = useTheme()
 
-  const { localParticipant, isCameraEnabled } = useLocalParticipant()
+  const { localParticipant, isCameraEnabled, microphoneTrack } = useLocalParticipant()
   const [isCameraFrontFacing, setCameraFrontFacing] = useState(true)
   const roomState = useConnectionState()
   const { settingStore } = useStores()
@@ -59,6 +71,9 @@ export const HeroScreen: FC<ScreenStackScreenProps<"Hero">> = observer(function 
   const [transcriptions, setTranscriptions] = useState<{
     [id: string]: TranscriptionSegmentWithParticipant
   }>({})
+
+  const [messages, setMessages] = useState<UnifiedMessage[]>([])
+  const { chatMessages } = useChat()
 
   const isWearable = toJS(settingStore.wearable)
   const insets = useSafeAreaInsets()
@@ -73,6 +88,12 @@ export const HeroScreen: FC<ScreenStackScreenProps<"Hero">> = observer(function 
     settingStore,
     navigation,
   )
+
+  const localMessages = useTrackTranscription({
+    publication: microphoneTrack,
+    source: Track.Source.Microphone,
+    participant: localParticipant,
+  })
 
   const room = useRoomContext()
   // setup participant camera track
@@ -127,9 +148,31 @@ export const HeroScreen: FC<ScreenStackScreenProps<"Hero">> = observer(function 
   }
 
   useEffect(() => {
-    if (!room) {
-      return
-    }
+    updateTranscriptions(localMessages.segments, localParticipant)
+  }, [localMessages.segments, localParticipant])
+
+  useEffect(() => {
+    const transcriptionMessages: UnifiedMessage[] = Object.values(transcriptions).map(
+      (segment) => ({
+        id: segment.id,
+        text: segment.text,
+        timestamp: segment.firstReceivedTime,
+        participantId: segment.participantId,
+      }),
+    )
+
+    const chatUnifiedMessages: UnifiedMessage[] = chatMessages.map((msg) => ({
+      id: msg.id,
+      text: msg.message,
+      timestamp: msg.timestamp,
+      participantId: msg.from?.identity ?? "unknown",
+    }))
+
+    setMessages([...transcriptionMessages, ...chatUnifiedMessages])
+  }, [transcriptions, chatMessages])
+
+  useEffect(() => {
+    if (!room) return
 
     room.on(RoomEvent.TranscriptionReceived, updateTranscriptions)
     return () => {
@@ -224,7 +267,7 @@ export const HeroScreen: FC<ScreenStackScreenProps<"Hero">> = observer(function 
               backgroundColor={$darkMode(isDarkMode)}
               contentContainerStyle={$topContainer(isDarkMode)}
             >
-              <TranscriptionTile transcripts={transcriptions} setTranscripts={setTranscriptions} />
+              <TranscriptionTile messages={messages} />
             </Screen>
           </Animated.View>
 
