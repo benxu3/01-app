@@ -127,10 +127,6 @@ export const HeroScreen: FC<ScreenStackScreenProps<"Hero">> = observer(function 
   }
 
   useEffect(() => {
-    console.log("transcriptions is: ", transcriptions)
-  }, [transcriptions])
-
-  useEffect(() => {
     if (!room) {
       return
     }
