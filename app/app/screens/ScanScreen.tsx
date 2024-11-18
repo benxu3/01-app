@@ -18,7 +18,7 @@ export const ScanScreen: FC<ScanScreenProps> = observer(function ScanScreen(_pro
 
   const handleScan = async (scanningResult: BarcodeScanningResult) => {
     await connectionStore.local_connect(scanningResult)
-    await connectionStore.set_token()
+    // await connectionStore.set_token()
 
     if (connectionStore.error) {
       // handle error
