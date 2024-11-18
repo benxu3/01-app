@@ -45,6 +45,8 @@ export const ConnectionStoreModel = types
         const data = JSON.parse(scanningResult.data)
         await self.saveLivekitUrl(data.livekit_server)
         await self.setProp("token", data.token)
+        console.log("set prop token as ", self.token)
+        console.log("set prop livekitUrl as ", self.livekitUrl)
       } catch (error) {
         console.error("Failed to connect", error)
         self.setProp("error", "Failed to connect to the sandbox")

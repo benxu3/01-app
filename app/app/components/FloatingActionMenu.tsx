@@ -47,6 +47,7 @@ FloatingActionMenuProps) => {
         isDarkMode={darkMode}
         source={cameraImage}
       />
+
       {cameraEnabled && (
         <FloatingActionButton
           isExpanded={expanded}

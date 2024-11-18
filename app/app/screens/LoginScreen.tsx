@@ -62,7 +62,8 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
 
   return (
     <>
-      {__DEV__ ? (
+      {
+        /* __DEV__ ? (
         <SafeAreaView style={$safeContainer}>
           <TextField
             onChangeText={handleTextChange}
@@ -83,6 +84,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
           />
         </SafeAreaView>
       ) : (
+       */
         <Screen
           preset="auto"
           contentContainerStyle={$screenContentContainer}
@@ -111,7 +113,7 @@ export const LoginScreen: FC<LoginScreenProps> = observer(function LoginScreen(_
             />
           </TouchableOpacity>
         </Screen>
-      )}
+      }
     </>
   )
 })
