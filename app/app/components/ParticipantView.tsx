@@ -76,6 +76,7 @@ const $speakingIndicator: ViewStyle = {
   height: "100%",
   borderColor: "#007DFF",
   borderWidth: 3,
+  borderRadius: 25,
 }
 
 const $spacer: ViewStyle = {

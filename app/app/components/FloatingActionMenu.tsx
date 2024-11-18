@@ -65,5 +65,5 @@ FloatingActionMenuProps) => {
 const $floatingButtonContainer: ViewStyle = {
   position: "absolute",
   bottom: spacing.xxl * 1.5 + spacing.md + spacing.xxs,
-  left: spacing.md,
+  left: spacing.sm + spacing.xxxs,
 }
