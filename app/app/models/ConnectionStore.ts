@@ -39,10 +39,11 @@ export const ConnectionStoreModel = types
     },
   }))
   .actions((self) => ({
-    async local_connect(scanningResult: BarcodeScanningResult) {
+    async local_connect(scanningResult: string) {
       try {
         console.log("called local connect")
-        const data = JSON.parse(scanningResult.data)
+        console.log("scanningResult", scanningResult)
+        const data = JSON.parse(scanningResult)
         await self.saveLivekitUrl(data.livekit_server)
         await self.setProp("token", data.token)
         console.log("set prop token as ", self.token)

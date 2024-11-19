@@ -1,54 +1,91 @@
-import { BarcodeScanningResult, CameraView, useCameraPermissions } from "expo-camera"
-import React, { FC } from "react"
-import { ViewStyle, TextStyle, View, Alert } from "react-native"
+import {
+  useCameraPermission,
+  useCameraDevice,
+  Camera,
+  useCodeScanner,
+  CameraPermissionStatus,
+} from "react-native-vision-camera"
+import React, { FC, useCallback, useState } from "react"
+import { ViewStyle, TextStyle, Alert, StyleSheet, View, Linking, Text } from "react-native"
 import { useStores } from "../models"
 import { AppStackScreenProps } from "../navigators"
-import { Text } from "../components/Text"
-import { Button } from "../components/Button"
-import { Screen } from "../components/Screen"
 import { spacing } from "../theme"
 import { observer } from "mobx-react-lite"
 
 interface ScanScreenProps extends AppStackScreenProps<"Scan"> {}
 
 export const ScanScreen: FC<ScanScreenProps> = observer(function ScanScreen(_props) {
-  const [permission, requestPermission] = useCameraPermissions()
+  const device = useCameraDevice("back")
+  const { hasPermission } = useCameraPermission()
   const { connectionStore } = useStores()
+  const [showCamera, setShowCamera] = useState(true)
+
   const { navigation } = _props
+  const [cameraPermissionStatus, setCameraPermissionStatus] =
+    useState<CameraPermissionStatus>("not-determined")
 
-  const handleScan = async (scanningResult: BarcodeScanningResult) => {
-    await connectionStore.local_connect(scanningResult)
-    // await connectionStore.set_token()
+  const requestCameraPermission = useCallback(async () => {
+    console.log("Requesting camera permission...")
+    const permission = await Camera.requestCameraPermission()
+    console.log(`Camera permission status: ${permission}`)
 
-    if (connectionStore.error) {
-      // handle error
-      Alert.alert("Error connecting to your server, please try again")
-      connectionStore.clearError()
-      navigation.navigate("Login")
-      return
-    }
+    if (permission === "denied") await Linking.openSettings()
+    setCameraPermissionStatus(permission)
+  }, [])
 
-    navigation.navigate("Room")
-  }
+  const codeScanner = useCodeScanner({
+    codeTypes: ["qr"],
+    onCodeScanned: async (codes) => {
+      const data = codes[0].value as string
+      await connectionStore.local_connect(data)
 
-  if (!permission) {
-    // Camera permissions are still loading.
-    return <View />
-  }
+      if (connectionStore.error) {
+        // handle error
+        Alert.alert("Error connecting to your server, please try again")
+        connectionStore.clearError()
+        navigation.navigate("Login")
+        return
+      }
 
-  if (!permission.granted) {
-    // Camera permissions are not granted yet.
+      // Unmount the camera before navigating
+      setShowCamera(false)
+
+      navigation.navigate("Room")
+    },
+  })
+
+  if (!hasPermission)
     return (
-      <Screen preset="fixed" safeAreaEdges={["top"]} contentContainerStyle={$container}>
-        <Text tx="permissions.camera" preset={"bold"} style={$message} />
-        <Button tx="common.continue" onPress={requestPermission} preset={"reversed"} />
-      </Screen>
+      <View style={$container}>
+        <Text style={$welcome}>Welcome to{"\n"}Vision Camera.</Text>
+        <View style={$permissionsContainer}>
+          {cameraPermissionStatus !== "granted" && (
+            <Text style={$permissionText}>
+              Vision Camera needs <Text style={$bold}>Camera permission</Text>.{" "}
+              <Text style={$hyperlink} onPress={requestCameraPermission}>
+                Grant
+              </Text>
+            </Text>
+          )}
+        </View>
+      </View>
     )
-  }
-
+  if (device == null)
+    return (
+      <View>
+        <Text>No camera available</Text>
+      </View>
+    )
   return (
-    <View style={$container}>
-      <CameraView style={$camera} facing={"back"} onBarcodeScanned={handleScan} />
+    <View style={StyleSheet.absoluteFill}>
+      {showCamera && (
+        <Camera
+          style={StyleSheet.absoluteFill}
+          device={device}
+          isActive
+          codeScanner={codeScanner}
+        />
+      )}
     </View>
   )
 })
@@ -59,17 +96,28 @@ const $container: ViewStyle = {
   flex: 1,
   justifyContent: "center",
   alignItems: "center",
-  backgroundColor: "transparent",
+  backgroundColor: "white",
 }
 
-const $message: TextStyle = {
-  textAlign: "center",
-  paddingBottom: 10,
-  color: "white",
+const $welcome: TextStyle = {
+  fontSize: 38,
+  fontWeight: "bold",
+  maxWidth: "80%",
 }
 
-const $camera: ViewStyle = {
-  flex: 1,
-  width: "100%",
-  height: "100%",
+const $permissionsContainer: ViewStyle = {
+  marginTop: spacing.lg * 2,
+}
+
+const $permissionText: TextStyle = {
+  fontSize: 17,
+}
+
+const $hyperlink: TextStyle = {
+  color: "#007aff",
+  fontWeight: "bold",
+}
+
+const $bold: TextStyle = {
+  fontWeight: "bold",
 }
