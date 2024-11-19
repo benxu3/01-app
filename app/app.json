@@ -61,6 +61,13 @@
       "@livekit/react-native-expo-plugin",
       "@config-plugins/react-native-webrtc",
       [
+        "react-native-vision-camera",
+        {
+          "cameraPermissionText": "This app requires camera access to scan QR codes for connecting to local servers and for potential future features like image analysis or video calls. Your privacy is important to us, and camera access is only used when explicitly initiated by you.",
+          "enableCodeScanner": true
+        }
+      ],
+      [
         "expo-build-properties",
         {
           "ios": {
@@ -69,14 +76,6 @@
           "android": {
             "newArchEnabled": false
           }
-        }
-      ],
-      [
-        "expo-camera",
-        {
-          "cameraPermission": "This app requires camera access to scan QR codes for connecting to local servers and for potential future features like image analysis or video calls. Your privacy is important to us, and camera access is only used when explicitly initiated by you.",
-          "microphonePermission": "This app requires microphone access to enable voice chatting with the AI agent. Your privacy is important to us, and microphone access is only used when explicitly initiated by you.",
-          "recordAudioAndroid": true
         }
       ],
       [
