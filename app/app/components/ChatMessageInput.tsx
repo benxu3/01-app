@@ -32,7 +32,7 @@ export const ChatMessageInput = ({
     }
     onSend(message)
     if (settingStore.pushToTalk) {
-      onSend("{START}")
+      onSend("{COMPLETE}")
     }
     setMessage("")
   }, [onSend, message])
