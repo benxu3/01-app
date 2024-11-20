@@ -100,7 +100,7 @@ export function useAudioSetup(
 
     if (settingStore.pushToTalk) {
       setTimeout(() => {
-        sendChat("{START}")
+        sendChat("{COMPLETE}")
       }, 1000)
     }
 
