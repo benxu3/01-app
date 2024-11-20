@@ -57,11 +57,11 @@ export const ScanScreen: FC<ScanScreenProps> = observer(function ScanScreen(_pro
   if (!hasPermission)
     return (
       <View style={$container}>
-        <Text style={$welcome}>Welcome to{"\n"}Vision Camera.</Text>
+        <Text style={$welcome}>Welcome to the{"\n"}01.</Text>
         <View style={$permissionsContainer}>
           {cameraPermissionStatus !== "granted" && (
             <Text style={$permissionText}>
-              Vision Camera needs <Text style={$bold}>Camera permission</Text>.{" "}
+              The 01 needs <Text style={$bold}>Camera permission</Text>.{" "}
               <Text style={$hyperlink} onPress={requestCameraPermission}>
                 Grant
               </Text>
@@ -72,8 +72,16 @@ export const ScanScreen: FC<ScanScreenProps> = observer(function ScanScreen(_pro
     )
   if (device == null)
     return (
-      <View>
-        <Text>No camera available</Text>
+      <View style={$container}>
+        <Text style={$welcome}>Welcome to the{"\n"}01.</Text>
+        <View style={$permissionsContainer}>
+          {cameraPermissionStatus !== "granted" && (
+            <Text style={$permissionText}>
+              The 01 requires <Text style={$bold}>Camera functionality</Text>, but we weren't able
+              to detect your device camera.
+            </Text>
+          )}
+        </View>
       </View>
     )
   return (
