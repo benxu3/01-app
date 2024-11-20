@@ -34,10 +34,13 @@ export const SettingsScreen: FC<ScreenStackScreenProps<"Settings">> = observer(
       settingStore.setProp("alwaysListening", newValue)
     }
 
+    /** Wearable
     const handleWearableToggle = (newValue: boolean) => {
       settingStore.setProp("wearable", newValue)
     }
+    */
 
+    /** Autorun 
     const handleAutorunToggle = (newValue: boolean) => {
       settingStore.setProp("autorun", newValue)
 
@@ -50,6 +53,7 @@ export const SettingsScreen: FC<ScreenStackScreenProps<"Settings">> = observer(
         settingStore.autorunOn(sendChat)
       }
     }
+    */
 
     const handleReturn = useCallback(() => {
       navigation.navigate("Hero")
@@ -122,7 +126,9 @@ export const SettingsScreen: FC<ScreenStackScreenProps<"Settings">> = observer(
             <></>
           )}
 
-          <Card
+          {/**
+             * Wearable
+            <Card
             style={[$background, $smallContainer]}
             LeftComponent={<Text tx="settingScreen.wearable" preset="default" style={$itemText} />}
             RightComponent={
@@ -136,8 +142,11 @@ export const SettingsScreen: FC<ScreenStackScreenProps<"Settings">> = observer(
             }
           />
           <Text tx="settingScreen.wearableDescription" style={$formHelper} />
+             */}
 
-          <Card
+          {/**
+           * Autorun
+           <Card
             style={[$background, $smallContainer]}
             LeftComponent={<Text tx="settingScreen.autorun" preset="default" style={$itemText} />}
             RightComponent={
@@ -148,9 +157,10 @@ export const SettingsScreen: FC<ScreenStackScreenProps<"Settings">> = observer(
                 onValueChange={handleAutorunToggle}
                 variant="switch"
               />
-            }
-          />
-          <Text tx="settingScreen.autorunDescription" style={$formHelper} />
+              }
+            />
+            <Text tx="settingScreen.autorunDescription" style={$formHelper} />
+            */}
 
           <Card
             style={[$background, $footerContainer]}
