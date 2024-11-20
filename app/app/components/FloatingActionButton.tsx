@@ -10,8 +10,6 @@ import Animated, {
 import AntDesign from "@expo/vector-icons/AntDesign"
 import { spacing } from "app/theme"
 
-const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity)
-
 const SPRING_CONFIG = {
   duration: 1200,
   overshootClamping: true,
@@ -60,6 +58,9 @@ export const FloatingActionButton = ({
     }
   })
 
+  // Determine pointer events based on expansion state
+  const pointerEvents = isExpanded.value ? "auto" : "none"
+
   if (isPrimary) {
     return (
       <TouchableOpacity style={$plusButton} onPress={onPress}>
@@ -71,9 +72,9 @@ export const FloatingActionButton = ({
   }
 
   return (
-    <AnimatedTouchableOpacity style={[animatedStyles, $button]} onPress={onPress}>
-      {source}
-    </AnimatedTouchableOpacity>
+    <Animated.View style={[animatedStyles, $button]} pointerEvents={pointerEvents}>
+      <TouchableOpacity onPress={onPress}>{source}</TouchableOpacity>
+    </Animated.View>
   )
 }
 
@@ -97,6 +98,7 @@ const $plusButton: ViewStyle = {
   flexDirection: "row",
   margin: spacing.xxs,
   marginRight: spacing.md,
+  zIndex: 3,
 }
 
 const $button: ViewStyle = {
