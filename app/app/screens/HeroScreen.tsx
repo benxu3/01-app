@@ -161,12 +161,16 @@ export const HeroScreen: FC<ScreenStackScreenProps<"Hero">> = observer(function 
       }),
     )
 
-    const chatUnifiedMessages: UnifiedMessage[] = chatMessages.map((msg) => ({
-      id: msg.id,
-      text: msg.message,
-      timestamp: msg.timestamp,
-      participantId: msg.from?.identity ?? "unknown",
-    }))
+    const excludedMessages = ["{COMPLETE}", "{REQUIRE_START_ON}", "{REQUIRE_START_OFF}"]
+
+    const chatUnifiedMessages: UnifiedMessage[] = chatMessages
+      .filter((msg) => !excludedMessages.includes(msg.message))
+      .map((msg) => ({
+        id: msg.id,
+        text: msg.message,
+        timestamp: msg.timestamp,
+        participantId: msg.from?.identity ?? "unknown",
+      }))
 
     setMessages([...transcriptionMessages, ...chatUnifiedMessages])
   }, [transcriptions, chatMessages])
