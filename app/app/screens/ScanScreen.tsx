@@ -6,23 +6,53 @@ import {
   CameraPermissionStatus,
 } from "react-native-vision-camera"
 import React, { FC, useCallback, useState } from "react"
-import { ViewStyle, TextStyle, Alert, StyleSheet, View, Linking, Text } from "react-native"
+import { ViewStyle, TextStyle, Alert, StyleSheet, View, Linking, Text, Platform } from "react-native"
 import { useStores } from "../models"
 import { AppStackScreenProps } from "../navigators"
 import { spacing } from "../theme"
 import { observer } from "mobx-react-lite"
+import { check, request, PERMISSIONS, RESULTS } from "react-native-permissions"
 
 interface ScanScreenProps extends AppStackScreenProps<"Scan"> {}
 
 export const ScanScreen: FC<ScanScreenProps> = observer(function ScanScreen(_props) {
   const device = useCameraDevice("back")
-  const { hasPermission } = useCameraPermission()
+  const { hasPermission: hasCameraPermission } = useCameraPermission()
   const { connectionStore } = useStores()
   const [showCamera, setShowCamera] = useState(true)
+  const [hasMicPermission, setHasMicPermission] = useState(false)
 
   const { navigation } = _props
   const [cameraPermissionStatus, setCameraPermissionStatus] =
     useState<CameraPermissionStatus>("not-determined")
+
+  const requestMicrophonePermission = useCallback(async () => {
+    console.log("Requesting microphone permission...")
+    const permission = Platform.select({
+      ios: PERMISSIONS.IOS.MICROPHONE,
+      android: PERMISSIONS.ANDROID.RECORD_AUDIO,
+    })
+
+    if (!permission) return false
+
+    try {
+      const result = await check(permission)
+
+      if (result === RESULTS.DENIED) {
+        const permissionResult = await request(permission)
+        const granted = permissionResult === RESULTS.GRANTED
+        setHasMicPermission(granted)
+        return granted
+      }
+
+      const granted = result === RESULTS.GRANTED
+      setHasMicPermission(granted)
+      return granted
+    } catch (error) {
+      console.error("Microphone permission check failed:", error)
+      return false
+    }
+  }, [])
 
   const requestCameraPermission = useCallback(async () => {
     console.log("Requesting camera permission...")
@@ -40,21 +70,18 @@ export const ScanScreen: FC<ScanScreenProps> = observer(function ScanScreen(_pro
       await connectionStore.local_connect(data)
 
       if (connectionStore.error) {
-        // handle error
         Alert.alert("Error connecting to your server, please try again")
         connectionStore.clearError()
         navigation.navigate("Login")
         return
       }
 
-      // Unmount the camera before navigating
       setShowCamera(false)
-
       navigation.navigate("Room")
     },
   })
 
-  if (!hasPermission)
+  if (!hasCameraPermission || !hasMicPermission)
     return (
       <View style={$container}>
         <Text style={$welcome}>Welcome {"\n"}to the 01.</Text>
@@ -63,7 +90,15 @@ export const ScanScreen: FC<ScanScreenProps> = observer(function ScanScreen(_pro
             <Text style={$permissionText}>
               The 01 needs <Text style={$bold}>Camera permission</Text>.{"\n"}
               <Text style={$hyperlink} onPress={requestCameraPermission}>
-                Grant
+                Grant Camera
+              </Text>
+            </Text>
+          )}
+          {!hasMicPermission && (
+            <Text style={[$permissionText, { marginTop: spacing.md }]}>
+              The 01 needs <Text style={$bold}>Microphone permission</Text>.{"\n"}
+              <Text style={$hyperlink} onPress={requestMicrophonePermission}>
+                Grant Microphone
               </Text>
             </Text>
           )}
