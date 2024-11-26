@@ -57,11 +57,11 @@ export const ScanScreen: FC<ScanScreenProps> = observer(function ScanScreen(_pro
   if (!hasPermission)
     return (
       <View style={$container}>
-        <Text style={$welcome}>Welcome to the{"\n"}01.</Text>
+        <Text style={$welcome}>Welcome {"\n"}to the 01.</Text>
         <View style={$permissionsContainer}>
           {cameraPermissionStatus !== "granted" && (
             <Text style={$permissionText}>
-              The 01 needs <Text style={$bold}>Camera permission</Text>.{" "}
+              The 01 needs <Text style={$bold}>Camera permission</Text>.{"\n"}
               <Text style={$hyperlink} onPress={requestCameraPermission}>
                 Grant
               </Text>

@@ -65,7 +65,7 @@ export const FloatingActionButton = ({
     return (
       <TouchableOpacity style={$plusButton} onPress={onPress}>
         <View style={$plusIconContainer(isDarkMode)}>
-          <AntDesign name="plus" size={20} color="white" />
+          <AntDesign name={isExpanded.value ? "minus" : "plus"} size={20} color="white" />
         </View>
       </TouchableOpacity>
     )
