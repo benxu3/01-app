@@ -1,20 +1,28 @@
 import React, { useState, useCallback } from "react"
-import { View, TouchableOpacity, ViewStyle, TextStyle, Dimensions, Alert } from "react-native"
+import { View, TouchableOpacity, ViewStyle, TextStyle, Dimensions } from "react-native"
 import { TextField } from "./TextField"
-import AntDesign from "@expo/vector-icons/AntDesign"
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6"
-import { spacing } from "../theme"
+import MaterialIcons from "@expo/vector-icons/MaterialIcons"
 import { useStores } from "../models"
+import { FloatingActionButton } from "./FloatingActionButton"
+import { SharedValue } from "react-native-reanimated"
+import { spacing } from "app/theme"
 
 type ChatMessageInputProps = {
-  placeholder: string
   onSend?: (message: string) => void
   isDarkMode: boolean
+  handlePlusIcon: () => void
+  isExpanded: SharedValue<boolean>
 }
 
 const SCREEN_WIDTH = Dimensions.get("window").width
 
-export const ChatMessageInput = ({ placeholder, onSend, isDarkMode }: ChatMessageInputProps) => {
+export const ChatMessageInput = ({
+  onSend,
+  isDarkMode,
+  handlePlusIcon,
+  isExpanded,
+}: ChatMessageInputProps) => {
   const [message, setMessage] = useState("")
   const { settingStore } = useStores()
 
@@ -24,57 +32,80 @@ export const ChatMessageInput = ({ placeholder, onSend, isDarkMode }: ChatMessag
     }
     onSend(message)
     if (settingStore.pushToTalk) {
-      onSend("{START}")
+      onSend("{COMPLETE}")
     }
     setMessage("")
   }, [onSend, message])
 
-  const showVisionAlert = () => {
-    Alert.alert("Vision Support", "coming soon!", [{ text: "OK" }])
-  }
-
   const backgroundColor = isDarkMode ? "black" : "white"
   const textColor = isDarkMode ? "white" : "black"
+  const placeholderText = "Type a message"
+
+  const handleFullscreen = () => {
+    if (!settingStore.wearable) {
+      isExpanded.value = false
+    }
+
+    settingStore.setProp("wearable", !settingStore.wearable)
+  }
 
   return (
-    <View>
-      <View style={$inputContainer}>
-        {isDarkMode ? (
-          <TouchableOpacity style={$plusButton} onPress={showVisionAlert}>
-            <View style={$plusIconContainer(isDarkMode)}>
-              <AntDesign name="plus" size={20} color={"white"} />
-            </View>
-          </TouchableOpacity>
-        ) : (
-          <TouchableOpacity style={$plusButton} onPress={showVisionAlert}>
-            <View style={$plusIconContainer(isDarkMode)}>
-              <AntDesign name="plus" size={20} color={"white"} />
-            </View>
-          </TouchableOpacity>
-        )}
-        <TextField
-          value={message}
-          onChangeText={setMessage}
-          placeholder={placeholder}
-          style={[$input, { color: textColor }]}
-          containerStyle={$textFieldContainer}
-          inputWrapperStyle={[$inputWrapper(isDarkMode), { backgroundColor }]}
-          onSubmitEditing={handleSend}
-          RightAccessory={() =>
-            message.length > 0 && (
-              <TouchableOpacity style={$sendButton} onPress={handleSend} disabled={!onSend}>
-                <FontAwesome6
-                  name="circle-arrow-up"
-                  size={32}
-                  color={isDarkMode ? "white" : "black"}
-                />
-              </TouchableOpacity>
-            )
-          }
-        />
-      </View>
+    <View style={$inputContainer}>
+      <FloatingActionButton
+        isExpanded={isExpanded}
+        isPrimary
+        onPress={handlePlusIcon}
+        isDarkMode={isDarkMode}
+      />
+      <TextField
+        value={message}
+        onChangeText={setMessage}
+        placeholder={placeholderText}
+        style={[$input, { color: textColor }]}
+        containerStyle={$textFieldContainer}
+        inputWrapperStyle={[$inputWrapper(isDarkMode), { backgroundColor }]}
+        onSubmitEditing={handleSend}
+        RightAccessory={() =>
+          message.length > 0 && (
+            <TouchableOpacity style={$sendButton} onPress={handleSend} disabled={!onSend}>
+              <FontAwesome6
+                name="circle-arrow-up"
+                size={32}
+                color={isDarkMode ? "white" : "black"}
+              />
+            </TouchableOpacity>
+          )
+        }
+      />
+      <TouchableOpacity style={$fullscreenButton} onPress={handleFullscreen}>
+        <View style={$fullscreenIconContainer(isDarkMode)}>
+          <MaterialIcons name="fullscreen" size={24} color="white" />
+        </View>
+      </TouchableOpacity>
     </View>
   )
+}
+
+const $fullscreenIconContainer = (isDarkMode: boolean): ViewStyle => ({
+  width: 34,
+  height: 34,
+  borderRadius: 17,
+  backgroundColor: isDarkMode ? "rgba(255, 255, 255, 0.5)" : "rgba(0, 0, 0, 0.5)",
+  justifyContent: "center",
+  alignItems: "center",
+})
+
+const $fullscreenButton: ViewStyle = {
+  width: 34,
+  height: 34,
+  backgroundColor: "transparent",
+  borderRadius: 17,
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  flexDirection: "row",
+  margin: spacing.xxs,
+  marginLeft: spacing.md,
 }
 
 const $inputContainer: ViewStyle = {
@@ -83,6 +114,7 @@ const $inputContainer: ViewStyle = {
   paddingTop: 8,
   paddingBottom: 4,
   width: "100%",
+  zIndex: 10,
 }
 
 const $textFieldContainer: ViewStyle = {
@@ -102,21 +134,6 @@ const $input: TextStyle = {
   marginLeft: 5,
   height: 24 * 0.95, // TextField component height is 24
 }
-
-const $plusButton: ViewStyle = {
-  padding: 4,
-  paddingRight: spacing.md,
-  alignSelf: "center",
-}
-
-const $plusIconContainer = (isDarkMode: boolean): ViewStyle => ({
-  width: 34,
-  height: 34,
-  borderRadius: 17,
-  backgroundColor: isDarkMode ? "rgba(255, 255, 255, 0.5)" : "rgba(0, 0, 0, 0.5)",
-  justifyContent: "center",
-  alignItems: "center",
-})
 
 const $sendButton: ViewStyle = {
   paddingRight: 4,

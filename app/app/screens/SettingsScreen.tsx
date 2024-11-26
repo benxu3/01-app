@@ -34,9 +34,26 @@ export const SettingsScreen: FC<ScreenStackScreenProps<"Settings">> = observer(
       settingStore.setProp("alwaysListening", newValue)
     }
 
+    /** Wearable
     const handleWearableToggle = (newValue: boolean) => {
       settingStore.setProp("wearable", newValue)
     }
+    */
+
+    /** Autorun 
+    const handleAutorunToggle = (newValue: boolean) => {
+      settingStore.setProp("autorun", newValue)
+
+      if (!newValue) {
+        // if push to talk is turned off then turn off always listening
+        console.log("SETTING AUTORUN OFF")
+        settingStore.autorunOff(sendChat)
+      } else {
+        console.log("SETTING AUTORUN ON")
+        settingStore.autorunOn(sendChat)
+      }
+    }
+    */
 
     const handleReturn = useCallback(() => {
       navigation.navigate("Hero")
@@ -109,7 +126,9 @@ export const SettingsScreen: FC<ScreenStackScreenProps<"Settings">> = observer(
             <></>
           )}
 
-          <Card
+          {/**
+             * Wearable
+            <Card
             style={[$background, $smallContainer]}
             LeftComponent={<Text tx="settingScreen.wearable" preset="default" style={$itemText} />}
             RightComponent={
@@ -123,6 +142,25 @@ export const SettingsScreen: FC<ScreenStackScreenProps<"Settings">> = observer(
             }
           />
           <Text tx="settingScreen.wearableDescription" style={$formHelper} />
+             */}
+
+          {/**
+           * Autorun
+           <Card
+            style={[$background, $smallContainer]}
+            LeftComponent={<Text tx="settingScreen.autorun" preset="default" style={$itemText} />}
+            RightComponent={
+              <Toggle
+                testID="autorunToggle"
+                containerStyle={$togglePadding}
+                value={settingStore.autorun}
+                onValueChange={handleAutorunToggle}
+                variant="switch"
+              />
+              }
+            />
+            <Text tx="settingScreen.autorunDescription" style={$formHelper} />
+            */}
 
           <Card
             style={[$background, $footerContainer]}

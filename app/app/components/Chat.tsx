@@ -2,22 +2,14 @@ import React, { useEffect, useRef } from "react"
 import { View, ViewStyle, ScrollView, Dimensions } from "react-native"
 import ChatMessage from "./ChatMessage"
 import { spacing } from "../theme"
-
-export type ChatMessageType = {
-  name: string
-  message: string
-  isSelf: boolean
-  timestamp: number
-}
-
-type ChatTileProps = {
-  messages: ChatMessageType[]
-}
+import { useLocalParticipant } from "@livekit/react-native"
+import { UnifiedMessage } from "app/screens"
 
 const windowHeight = Dimensions.get("window").height
 
-export const ChatTile = ({ messages }: ChatTileProps) => {
+export const ChatTile = ({ messages }: { messages: UnifiedMessage[] }) => {
   const scrollViewRef = useRef<ScrollView>(null)
+  const { localParticipant } = useLocalParticipant()
 
   useEffect(() => {
     if (scrollViewRef.current) {
@@ -33,17 +25,15 @@ export const ChatTile = ({ messages }: ChatTileProps) => {
         contentContainerStyle={$messagesContent}
         scrollEventThrottle={16}
       >
-        {messages.map((message, index) => {
-          // const isConsecutive = index > 0 && messages[index - 1].isSelf === message.isSelf;
-
-          return (
+        {messages
+          .sort((a, b) => a.timestamp - b.timestamp)
+          .map((message) => (
             <ChatMessage
-              key={index}
-              message={message.message}
-              isSelf={message.isSelf}
+              key={message.id}
+              message={message.text}
+              isSelf={message.participantId === localParticipant?.identity}
             />
-          )
-        })}
+          ))}
       </ScrollView>
     </View>
   )

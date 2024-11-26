@@ -6,7 +6,7 @@
     "slug": "interpreter-01-app",
     "scheme": "com.interpreter",
     "owner": "open-interpreter",
-    "version": "1.0.33",
+    "version": "1.0.38",
     "orientation": "portrait",
     "icon": "./assets/images/app-icon.png",
     "splash": {
@@ -21,7 +21,7 @@
     "assetBundlePatterns": ["**/*"],
     "android": {
       "package": "com.interpreter.app",
-      "versionCode": 33,
+      "versionCode": 38,
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/app-icon.png",
         "backgroundColor": "#ffffff"
@@ -34,7 +34,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "buildNumber": "33",
+      "buildNumber": "38",
       "bundleIdentifier": "com.interpreter.app",
       "splash": {
         "image": "./assets/images/splash-logo-all.png",
@@ -61,6 +61,13 @@
       "@livekit/react-native-expo-plugin",
       "@config-plugins/react-native-webrtc",
       [
+        "react-native-vision-camera",
+        {
+          "cameraPermissionText": "This app requires camera access to scan QR codes for connecting to local servers and for potential future features like image analysis or video calls. Your privacy is important to us, and camera access is only used when explicitly initiated by you.",
+          "enableCodeScanner": true
+        }
+      ],
+      [
         "expo-build-properties",
         {
           "ios": {
@@ -69,14 +76,6 @@
           "android": {
             "newArchEnabled": false
           }
-        }
-      ],
-      [
-        "expo-camera",
-        {
-          "cameraPermission": "This app requires camera access to scan QR codes for connecting to local servers and for potential future features like image analysis or video calls. Your privacy is important to us, and camera access is only used when explicitly initiated by you.",
-          "microphonePermission": "This app requires microphone access to enable voice chatting with the AI agent. Your privacy is important to us, and microphone access is only used when explicitly initiated by you.",
-          "recordAudioAndroid": true
         }
       ],
       [
@@ -106,6 +105,11 @@
     ],
     "experiments": {
       "tsconfigPaths": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "d843f9e1-dc13-49ea-9c9a-4f17544e6b27"
+      }
     }
   },
   "ignite": {

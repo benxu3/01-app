@@ -99,7 +99,9 @@ export function useAudioSetup(
     }
 
     if (settingStore.pushToTalk) {
-      sendChat("{START}")
+      setTimeout(() => {
+        sendChat("{COMPLETE}")
+      }, 1000)
     }
 
     toggleTheme()
